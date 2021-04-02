@@ -1,0 +1,47 @@
+rm(list=ls())
+library(coefplot)
+library(stargazer)
+library(plyr)
+
+setwd("/Users/magal/Desktop/regression/R scripts/HW4")
+getwd()
+mydata <- read.delim("/Users/magal/Desktop/regression/All_Data/P130.txt")
+
+mydata <- read.delim("/Users/magal/Desktop/regression/All_Data/P151.txt")
+
+attach(mydata)
+
+mydata$South <- 0
+mydata$South[which(mydata$Region==3)] <- 1
+
+mydata$NE <- 0
+mydata$NE[which(mydata$Region==1)] <- 1
+
+mydata$NC <- 0
+mydata$NC[which(mydata$Region==2)] <- 1
+
+mydata$W <- 0
+mydata$W[which(mydata$Region==3)] <- 1
+
+fit <- lm(Y ~ X1 + X2 + X3 +South+NE+NC)
+fit.o <- lm(Y ~ X1 + X2 + X3 +Region)
+
+stargazer(fit, type="text", title= "q6", out= "table1.txt")
+stargazer(fit.o, fit,type="text", title= "q6", out= "table1.txt")
+
+coefplot(fit, intercept=FALSE)
+coefplot(fit.o, intercept=FALSE)
+
+
+#///////////////////////////////////////////////////////////////////////////////////////////////
+fit2 <- lm(Y ~ X1 + X2 + X3 + X1*South, data=mydata)
+stargazer(fit2, type="text", title= "q6", out= "table1.txt")
+
+## notice that this is ggplot2 grammar (sorry), which interplot uses
+interplot(m = fit2, var1 = "X1", var2 = "South", hist = TRUE) +
+  aes(color = "pink") + theme(legend.position="none") +   geom_line(color = "pink") + 
+  geom_hline(yintercept = 0, linetype = "dashed") + xlab("") + 
+  ylab("") + labs(title="Marginal Effect of Personal Income  south", subtitle="Y ~ X1 + X2 + X3 + south*x1") +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=14),
+        title=element_text(size=14))
